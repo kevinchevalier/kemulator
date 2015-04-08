@@ -1,0 +1,10 @@
+*.o
+*.dyn_hi
+*.hi
+*.dyn_o
+\#*
+\.\#*
+donkeykong.nes
+mario2.nes
+out.txt
+Main
