@@ -13,10 +13,10 @@ startPPU :: PPUStatus
 startPPU = PPUStatus{
              tables = V.replicate 0x1000 0,
              pallates = V.replicate 0x20 0,
-             spriteRam = V.replicate 0xFF 0,
+             objectAttributeMemory = V.replicate 0xFF 0,
              line = 0,
              -- Control Register 1 0x2000
-             nmiEnabled = True,
+             nmiEnabled = False,
              spriteSize = 8,
              backgroundPatternTableAddress = 0x0000,
              spritePatternTableAddress = 0x0000,
@@ -100,6 +100,10 @@ setPPURegister :: (PPUStatus -> Word8 -> PPUStatus) -> Word8 -> Operation ()
 setPPURegister registerFn reg = do
   ppuStatus <- getPPUStatus
   setPPUStatus . flip registerFn reg $ ppuStatus
+  showBackground <- liftM showBackground getPPUStatus
+  if showBackground 
+      then liftIO $ putStrLn "show background" 
+      else return ()
 
 -- Control register write 0x2000
 --  0x2000 - 0778 Stored - vMsbpiNN
@@ -179,6 +183,9 @@ writePPUVRAM address val
     | (address >= 0x2000) && (address < 0x3F00) = do
        ppuStatus <- getPPUStatus
        setPPUStatus ppuStatus{ tables=tables ppuStatus V.// [(fromIntegral (mod address 0x1000), val)] }
+    | (address >= 0x3F00) && (address < 0x4000) = do
+       ppuStatus <- getPPUStatus
+       setPPUStatus ppuStatus{ pallates=pallates ppuStatus V.// [(fromIntegral (mod address 0x20), val)] }
     | otherwise = do
           liftIO $ printHex "Undefined VRAM write" val
           liftIO $ printHex16 "to" address

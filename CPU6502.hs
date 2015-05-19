@@ -120,22 +120,23 @@ interruptAddress Reset = 0xFFFC
 
 interrupt :: Interrupt -> Operation ()
 interrupt int = do 
+  ad <- readMemory2 0xF000
+  liftIO $ printHex16 "0xF000" ad
   status <- get
   if isSoftwareInterrupt int && (i . cpu $ status) then 
       return ()
   else
       do
         let cpuStatus = cpu status
-        push (pcl cpuStatus)
-        push (pch cpuStatus)
+        push2 $ pc cpuStatus - 1
         push (p cpuStatus)
         newAddress <- readMemory2 . interruptAddress $ int
-        let p'  = setI True . p $ cpuStatus 
-            cpuStatus' = cpuStatus{ pc=newAddress, p=p' }
-        status <- get
-        put status{cpu=cpuStatus'}
-        return ()
-
+        liftIO $ putStrLn $ "INTERRUPT (" ++ (formatHex2 . interruptAddress $ int) ++ "): " ++ formatHex2 newAddress
+        status' <- get
+        let p'  = setI True . p . cpu $ status'
+            cpuStatus' = (cpu status'){ pc=newAddress, p=p' }
+        put status'{ cpu=cpuStatus' }
+        
 binary :: Int -> Char
 binary 0 = '0'
 binary 1 = '1'

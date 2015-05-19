@@ -105,6 +105,16 @@ zeroPageRegressInput = InputAddressing $ do
             setCPUStatus cpuStatus{ pc=pcVal }
             readMemory (fromIntegral address)
 
+zeroPageModRegressInput :: (CPU6502Status -> Word8) -> InputAddressing 
+zeroPageModRegressInput reg = InputAddressing $ do
+            pcVal <- liftM pc getCPUStatus
+            address <- liftM fromIntegral readPC
+            regVal <- liftM (extendWord8 . reg) getCPUStatus
+            -- liftIO (printHex16 "Store Address" . fromIntegral $ address)
+            cpuStatus <- getCPUStatus
+            setCPUStatus cpuStatus{ pc=pcVal }
+            readMemory $ address + regVal
+
 popInput :: InputAddressing
 popInput = InputAddressing pop
 

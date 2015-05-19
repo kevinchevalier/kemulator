@@ -55,7 +55,7 @@ ppuLine lineNumber
 cpuTick :: Operation ()
 cpuTick = do
   command <- readPC
-  liftIO $ printHex "Command" command
+  --liftIO $ printHex "Command" command
   let (op, input, output) = getOperation command
   val <- case input of
     InputAddressing inFn -> inFn

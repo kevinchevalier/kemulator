@@ -31,7 +31,7 @@ data BackgroundColor = Black | Red | Blue | Green
 data PPUStatus = PPUStatus {
       tables :: V.Vector Word8,
       pallates :: V.Vector Word8,
-      spriteRam :: V.Vector Word8,
+      objectAttributeMemory :: V.Vector Word8,
       line :: Int,
       -- Control Register 1 0x2000
       nmiEnabled :: Bool,

@@ -55,6 +55,17 @@ writeMemory address val
     | address == 0x2005 = writePPUScroll val
     | address == 0x2006 = setPPUVRAMAddress val
     | address == 0x2007 = writePPUVRAMRegister val
+    | address == 0x4000 = writeAPUPulse1 val
+    | address == 0x4001 = writeAPUSweep1 val
+    | address == 0x4002 = writeAPUTimer1 val
+    | address == 0x4003 = writeAPUCounter1 val
+    | address == 0x4004 = writeAPUPulse2 val
+    | address == 0x4005 = writeAPUSweep2 val
+    | address == 0x4006 = writeAPUTimer2 val
+    | address == 0x4007 = writeAPUCounter2 val
+    | address == 0x4008 = writeAPUTriangleCounter val
+    | address == 0x400A = writeAPUTriangleTimer val
+    | address == 0x400B = writeAPUTriangleCounterLoad val
     | address == 0x4011 = setAPUVolume val
     | address == 0x4014 = startPPUDMA val
     | address == 0x4015 = setAPUChannels val
@@ -66,7 +77,7 @@ writeMemory address val
           liftIO $ printHex16 "to" address
           undefined
 
--- PPU DMA 0x4014
+-- PPU OAM DMA 0x4014
 --  Copy from val=$xx cpu address $xx00-xxFF to PPU address starting at spriteRamAddress
 startPPUDMA :: Word8 -> Operation ()
 startPPUDMA highAddress = do
@@ -82,7 +93,7 @@ copyCPUtoPPU :: (Address, Word8) -> Operation ()
 copyCPUtoPPU (cpuAddress, ppuOAMAddress) = do
   val <- readMemory cpuAddress
   ppuStatus <- getPPUStatus
-  setPPUStatus ppuStatus{ spriteRam=(spriteRam ppuStatus) V.// [(fromIntegral ppuOAMAddress, val)] }
+  setPPUStatus ppuStatus{ objectAttributeMemory =(objectAttributeMemory ppuStatus) V.// [(fromIntegral ppuOAMAddress, val)] }
 
                
 
